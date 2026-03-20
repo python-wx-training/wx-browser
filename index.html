@@ -99,7 +99,7 @@
 
     <div class="slider-box">
       <button class="arrow-btn" id="prevBtn">◀</button>
-      <span>時刻: <span id="timeLabel">t0</span></span>
+      <span>時刻: <span id="timeLabel">T00</span></span>
       <input type="range" id="timeSlider" min="0" max="5" value="0">
       <button class="arrow-btn" id="nextBtn">▶</button>
     </div>
@@ -107,27 +107,27 @@
     <fieldset>
       <legend>レイヤ表示</legend>
 
-      θe：
+      相当温位　　：
       <label><input type="radio" name="thetae_vis" value="on" checked>表示</label>
       <label><input type="radio" name="thetae_vis" value="off">非表示</label><br>
 
-      流線：
+      風（流線）　：
       <label><input type="radio" name="stream_vis" value="on" checked>表示</label>
       <label><input type="radio" name="stream_vis" value="off">非表示</label><br>
 
-      風バーブ：
+      風（矢羽根）：
       <label><input type="radio" name="barb_vis" value="on">表示</label>
       <label><input type="radio" name="barb_vis" value="off" checked>非表示</label><br>
 
-      T850：
+      850hPa気温　：
       <label><input type="radio" name="t850_vis" value="on">表示</label>
       <label><input type="radio" name="t850_vis" value="off" checked>非表示</label><br>
 
-      GH850：
+      850hPa高度　：
       <label><input type="radio" name="gh850_vis" value="on">表示</label>
       <label><input type="radio" name="gh850_vis" value="off" checked>非表示</label><br>
 
-      海岸線：
+      海岸線　　　：
       <label><input type="radio" name="coast_vis" value="on" checked>表示</label>
       <label><input type="radio" name="coast_vis" value="off">非表示</label>
     </fieldset>
@@ -139,8 +139,12 @@
   const slider = document.getElementById("timeSlider");
   const label  = document.getElementById("timeLabel");
 
+  /* ★ T00/T12/T24/T36/T48/T72 対応表 */
+  const timeLabelMap = ["T00", "T12", "T24", "T36", "T48", "T72"];
+
   function updateTime(t) {
-    label.textContent = "t" + t;
+    label.textContent = timeLabelMap[t];
+
     document.getElementById("thetae").src = `svg/thetae_t${t}.svg`;
     document.getElementById("stream").src = `svg/stream_t${t}.svg`;
     document.getElementById("barb").src   = `svg/barb_t${t}.svg`;
