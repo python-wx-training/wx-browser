@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MSM 850hPa Viewer</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: #222;
+    font-family: sans-serif;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 1400px;
+    margin: 20px auto;
+  }
+
+  /* ★ SVG より一回り大きい viewer（決め打ち） */
+  .viewer {
+    position: relative;
+    width: 1100px;
+    height: 1100px;
+    background: #ffffff;
+    border: 1px solid #ccc;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* SVG は実サイズで中央配置 */
+  .viewer img {
+    width: 1000px;
+    height: 1000px;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+  }
+
+  /* θe だけ高さ確保のため static */
+  #thetae {
+    position: static;
+    display: block;
+    width: 1000px;
+    height: 1000px;
+  }
+
+  .controls {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+  }
+
+  fieldset {
+    margin-top: 10px;
+  }
+
+  /* ★ スライダー中央寄せ */
+  .slider-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  /* ★ スライダーは描画窓の1/3（約360px） */
+  #timeSlider {
+    width: 360px;
+  }
+
+  .arrow-btn {
+    font-size: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- 描画エリア -->
+  <div class="viewer">
+    <img id="thetae"  src="svg/thetae_t0.svg">
+    <img id="stream"  src="svg/stream_t0.svg">
+    <img id="barb"    src="svg/barb_t0.svg" style="display:none;">
+    <img id="t850"    src="svg/T850_t0.svg" style="display:none;">
+    <img id="gh850"   src="svg/GH850_t0.svg" style="display:none;">
+    <img id="coast"   src="svg/coastline_10m.svg">
+  </div>
+
+  <!-- 制御エリア -->
+  <div class="controls">
+
+    <div class="slider-box">
+      <button class="arrow-btn" id="prevBtn">◀</button>
+      <span>時刻: <span id="timeLabel">t0</span></span>
+      <input type="range" id="timeSlider" min="0" max="5" value="0">
+      <button class="arrow-btn" id="nextBtn">▶</button>
+    </div>
+
+    <fieldset>
+      <legend>レイヤ表示</legend>
+
+      θe：
+      <label><input type="radio" name="thetae_vis" value="on" checked>表示</label>
+      <label><input type="radio" name="thetae_vis" value="off">非表示</label><br>
+
+      流線：
+      <label><input type="radio" name="stream_vis" value="on" checked>表示</label>
+      <label><input type="radio" name="stream_vis" value="off">非表示</label><br>
+
+      風バーブ：
+      <label><input type="radio" name="barb_vis" value="on">表示</label>
+      <label><input type="radio" name="barb_vis" value="off" checked>非表示</label><br>
+
+      T850：
+      <label><input type="radio" name="t850_vis" value="on">表示</label>
+      <label><input type="radio" name="t850_vis" value="off" checked>非表示</label><br>
+
+      GH850：
+      <label><input type="radio" name="gh850_vis" value="on">表示</label>
+      <label><input type="radio" name="gh850_vis" value="off" checked>非表示</label><br>
+
+      海岸線：
+      <label><input type="radio" name="coast_vis" value="on" checked>表示</label>
+      <label><input type="radio" name="coast_vis" value="off">非表示</label>
+    </fieldset>
+
+  </div>
+</div>
+
+<script>
+  const slider = document.getElementById("timeSlider");
+  const label  = document.getElementById("timeLabel");
+
+  function updateTime(t) {
+    label.textContent = "t" + t;
+    document.getElementById("thetae").src = `svg/thetae_t${t}.svg`;
+    document.getElementById("stream").src = `svg/stream_t${t}.svg`;
+    document.getElementById("barb").src   = `svg/barb_t${t}.svg`;
+    document.getElementById("t850").src   = `svg/T850_t${t}.svg`;
+    document.getElementById("gh850").src  = `svg/GH850_t${t}.svg`;
+  }
+
+  slider.addEventListener("input", () => {
+    updateTime(slider.value);
+  });
+
+  /* ◀ ▶ ボタン */
+  document.getElementById("prevBtn").onclick = () => {
+    slider.value = Math.max(0, Number(slider.value) - 1);
+    updateTime(slider.value);
+  };
+
+  document.getElementById("nextBtn").onclick = () => {
+    slider.value = Math.min(5, Number(slider.value) + 1);
+    updateTime(slider.value);
+  };
+
+  /* レイヤ ON/OFF */
+  function bindVisibilityRadio(name, id) {
+    const radios = document.querySelectorAll(`input[name="${name}"]`);
+    radios.forEach(r => {
+      r.addEventListener("change", () => {
+        const el = document.getElementById(id);
+        el.style.display = (r.value === "on") ? "block" : "none";
+      });
+    });
+  }
+
+  bindVisibilityRadio("thetae_vis", "thetae");
+  bindVisibilityRadio("stream_vis", "stream");
+  bindVisibilityRadio("barb_vis",   "barb");
+  bindVisibilityRadio("t850_vis",   "t850");
+  bindVisibilityRadio("gh850_vis",  "gh850");
+  bindVisibilityRadio("coast_vis",  "coast");
+</script>
+
+</body>
+</html>
